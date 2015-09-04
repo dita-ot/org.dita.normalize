@@ -86,13 +86,20 @@
 
   <xsl:template match="*[number(@ditaarch:DITAArchVersion) &lt; 1.3]/@cascade"/>
 
-  <xsl:template match="*" priority="-5">
+  <xsl:template match="*[@class]" priority="-5">
+    <xsl:element name="{tokenize(tokenize(normalize-space(@class), '\s+')[last()], '/')[last()]}"
+                 namespace="{namespace-uri()}">
+      <xsl:apply-templates select="node() | @*"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="*" priority="-10">
     <xsl:element name="{name()}" namespace="{namespace-uri()}">
       <xsl:apply-templates select="node() | @*"/>
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="node() | @*" priority="-10">
+  <xsl:template match="node() | @*" priority="-15">
     <xsl:copy>
       <xsl:apply-templates select="node() | @*"/>
     </xsl:copy>
