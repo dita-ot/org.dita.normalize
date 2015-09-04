@@ -80,7 +80,8 @@
                        processing-instruction('ditaot') |
                        processing-instruction('doctype-public') |
                        processing-instruction('doctype-system') |
-                       @dita-ot:*"
+                       @dita-ot:* |
+                       @mapclass"
                 priority="10"/>
 
   <xsl:template match="*[number(@ditaarch:DITAArchVersion) &lt; 1.3]/@cascade"/>
