@@ -22,7 +22,7 @@ Normalized output may be useful in situations where post-processing of DITA cont
 
 Run the plug-in installation command:
 
-    dita -install https://github.com/dita-ot/org.dita.normalize/releases/download/1.0/org.dita.normalize_1.0.zip
+    dita -install https://github.com/dita-ot/org.dita.normalize/archive/1.0.zip
 
 ## Generating normalized DITA output
 
