@@ -70,7 +70,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="@class | @domains | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
+  <xsl:template match="@class | @domains | @specializations | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
                 priority="10"/>
   
   <xsl:template match="processing-instruction('workdir') |
