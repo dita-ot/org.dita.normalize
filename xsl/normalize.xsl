@@ -70,7 +70,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:template match="@class | @domains | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
+  <xsl:template match="@class | @domains | @specializations | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
                 priority="10"/>
   
   <xsl:template match="processing-instruction('workdir') |
@@ -91,6 +91,12 @@
                  namespace="{namespace-uri()}">
       <xsl:apply-templates select="node() | @*"/>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
+    <xsl:if test="empty(../@namest) and empty(../@nameend)">
+      <xsl:copy-of select="."/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="*" priority="-10">
