@@ -92,6 +92,12 @@
       <xsl:apply-templates select="node() | @*"/>
     </xsl:element>
   </xsl:template>
+  
+  <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
+    <xsl:if test="empty(../@namest) and empty(../@nameend)">
+      <xsl:copy-of select="."/>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="*" priority="-10">
     <xsl:element name="{name()}" namespace="{namespace-uri()}">
