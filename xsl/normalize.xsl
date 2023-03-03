@@ -10,32 +10,96 @@
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 exclude-result-prefixes="xs ditaarch dita-ot xsi"
                 version="2.0">
-  
+
+  <xsl:import href="plugin:org.dita.base:xsl/common/uri-utils.xsl"/>
+
   <xsl:param name="output.dir.uri"/>
-  
+
+  <xsl:function name="dita-ot:get-fragment" as="xs:string">
+    <xsl:param name="input" as="xs:string"/>
+    <xsl:sequence select="replace($input, '^[^#]+', '')"/>
+  </xsl:function>
+
+  <xsl:function name="dita-ot:strip-fragment" as="xs:anyURI">
+    <xsl:param name="input" as="xs:string"/>
+    <xsl:sequence select="xs:anyURI(replace($input, '#.*$', ''))"/>
+  </xsl:function>
+
+  <xsl:function name="dita-ot:set-fragment" as="xs:anyURI">
+    <xsl:param name="path" as="xs:string"/>
+    <xsl:param name="fragment" as="xs:string"/>
+    <xsl:sequence select="xs:anyURI(concat($path, $fragment))"/>
+  </xsl:function>
+
+  <xsl:variable name="files" as="document-node()">
+    <xsl:variable name="rewritten" as="element()*">
+      <xsl:for-each select="job/files/file[@format = ('dita', 'ditamap')]">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="uri" select="resolve-uri(@uri, base-uri($root))"/>
+          <xsl:choose>
+            <xsl:when test="matches(@uri, '\.(xml|dita|ditamap)$', 'i')">
+              <xsl:attribute name="result" select="@uri"/>
+              <xsl:attribute name="renamed" select="false()"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:attribute name="result" select="replace(@uri, '\.(\w+)$', concat('.', @format))"/>
+              <xsl:attribute name="renamed" select="true()"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:copy>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:document>
+      <xsl:for-each-group select="$rewritten" group-by="@result">
+        <xsl:variable name="path" select="replace(current-grouping-key(), '#.*$', '')" as="xs:string"/>
+        <xsl:variable name="fragment" select="replace(current-grouping-key(), '^[^#]+', '')" as="xs:string"/>
+        <xsl:for-each select="current-group()">
+          <xsl:sort select="@renamed"/>
+          <xsl:copy>
+            <xsl:copy-of select="@* except @renamed"/>
+            <xsl:attribute name="result" select="replace(@result, '\.(\w+)$',
+                if (position() eq 1)
+                then '.$1'
+                else concat('-', position() - 1, '.$1'))"/>
+          </xsl:copy>
+        </xsl:for-each>
+      </xsl:for-each-group>
+    </xsl:document>
+  </xsl:variable>
+
+  <xsl:key name="file-uri" match="file" use="@uri"/>
+
+  <xsl:variable name="root" select="." as="document-node()"/>
+
   <xsl:template match="/">
-    <xsl:for-each select="job/files/file[@format = ('dita', 'ditamap')]">
-      <xsl:variable name="output.uri" select="concat($output.dir.uri, @uri)"/>
-      <xsl:message select="$output.uri"/>
-      <xsl:for-each select="document(@uri, .)">
+    <xsl:for-each select="$files/*">
+      <xsl:variable name="input.uri" select="resolve-uri(@uri, base-uri($root))"/>
+      <xsl:variable name="output.uri" select="concat($output.dir.uri, @result)"/>
+      <xsl:message select="concat('Writing ', $output.uri)"/>
+      <xsl:for-each select="document($input.uri)">
         <xsl:choose>
           <xsl:when test="*/@xsi:noNamespaceSchemaLocation">
             <xsl:result-document href="{$output.uri}">
-              <xsl:apply-templates/>
+              <xsl:apply-templates>
+                <xsl:with-param name="uri" select="$input.uri" as="xs:anyURI" tunnel="yes"/>
+              </xsl:apply-templates>
             </xsl:result-document>
           </xsl:when>
           <xsl:otherwise>
             <xsl:result-document href="{$output.uri}"
                                  doctype-public="{dita-ot:get-doctype-public(.)}"
                                  doctype-system="{dita-ot:get-doctype-system(.)}">
-              <xsl:apply-templates/>
+              <xsl:apply-templates>
+                <xsl:with-param name="uri" select="$input.uri" as="xs:anyURI" tunnel="yes"/>
+              </xsl:apply-templates>
             </xsl:result-document>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each>
     </xsl:for-each>
   </xsl:template>
-  
+
   <xsl:function name="dita-ot:get-doctype-public">
     <xsl:param name="doc" as="document-node()"/>
     <xsl:choose>
@@ -56,7 +120,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-  
+
   <xsl:function name="dita-ot:get-doctype-system">
     <xsl:param name="doc" as="document-node()"/>
     <xsl:choose>
@@ -69,10 +133,10 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-  
+
   <xsl:template match="@class | @domains | @specializations | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
                 priority="10"/>
-  
+
   <xsl:template match="processing-instruction('workdir') |
                        processing-instruction('workdir-uri') |
                        processing-instruction('path2project') |
@@ -88,11 +152,35 @@
 
   <xsl:template match="*[@class]" priority="-5">
     <xsl:element name="{tokenize(tokenize(normalize-space(@class), '\s+')[last()], '/')[last()]}"
-                 namespace="{namespace-uri()}">
+      namespace="{namespace-uri()}">
       <xsl:apply-templates select="node() | @*"/>
     </xsl:element>
   </xsl:template>
-  
+
+  <xsl:template match="*[contains(@class, ' topic/xref ') or
+                         contains(@class, ' topic/xref ') or
+                         contains(@class, ' map/topicref ')]
+                        [empty(@format) or @format = 'dita']
+                        [empty(@scope) or @scope = 'local']/@href">
+    <xsl:param name="uri" as="xs:anyURI" tunnel="yes"/>
+    <xsl:variable name="input" select="resolve-uri(., $uri)" as="xs:string"/>
+    <xsl:variable name="path" select="dita-ot:strip-fragment($input)" as="xs:anyURI"/>
+    <xsl:variable name="fragment" select="dita-ot:get-fragment($input)" as="xs:string"/>
+    <xsl:variable name="href" select="key('file-uri', $path, $files)/@result" as="xs:anyURI?"/>
+    <xsl:choose>
+      <xsl:when test="exists($href)">
+        <xsl:attribute name="{name()}" select="dita-ot:set-fragment(
+          dita-ot:relativize(
+            resolve-uri('.',$uri),
+            resolve-uri($href, base-uri($root))),
+          $fragment)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
     <xsl:if test="empty(../@namest) and empty(../@nameend)">
       <xsl:copy-of select="."/>
@@ -110,5 +198,5 @@
       <xsl:apply-templates select="node() | @*"/>
     </xsl:copy>
   </xsl:template>
-  
+
 </xsl:stylesheet>
