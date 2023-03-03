@@ -13,7 +13,8 @@
 
   <xsl:import href="plugin:org.dita.base:xsl/common/uri-utils.xsl"/>
 
-  <xsl:param name="output.dir.uri"/>
+  <xsl:param name="output.dir.uri" as="xs:string"/>
+  <xsl:param name="normalize-strip-keyref" as="xs:string"/>
 
   <xsl:function name="dita-ot:get-fragment" as="xs:string">
     <xsl:param name="input" as="xs:string"/>
@@ -156,6 +157,13 @@
       <xsl:apply-templates select="node() | @*"/>
     </xsl:element>
   </xsl:template>
+
+  <xsl:template match="*[contains(@class, ' map/topicref ')]
+                        [exists(@keys) and @processing-role = 'resource-only']
+                        [$normalize-strip-keyref = 'true']"/>
+
+  <xsl:template match="@keyref[$normalize-strip-keyref = 'true'] |
+                       @keys[$normalize-strip-keyref = 'true']"/>
 
   <xsl:template match="*[contains(@class, ' topic/xref ') or
                          contains(@class, ' topic/xref ') or

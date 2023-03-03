@@ -4,6 +4,11 @@
   See the accompanying license.txt file for applicable licenses.
 -->
 <plugin id="org.dita.normalize">
-  <transtype name="dita" desc="Normalized DITA"/>
+  <transtype name="dita" desc="Normalized DITA">
+    <param name="normalize-strip-keyref" desc="Remove key artefacts after key resolution." type="enum">
+      <val default="true">yes</val>
+      <val>no</val>
+    </param>
+  </transtype>
   <feature extension="dita.conductor.target.relative" file="conductor.xml"/>
 </plugin>
