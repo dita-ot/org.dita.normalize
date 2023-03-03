@@ -9,6 +9,10 @@
       <val default="true">yes</val>
       <val>no</val>
     </param>
+    <param name="normalize-strip-branch-filter" desc="Remove branch filter artefacts after branch filter resolution." type="enum">
+      <val default="true">yes</val>
+      <val>no</val>
+    </param>
   </transtype>
   <feature extension="dita.conductor.target.relative" file="conductor.xml"/>
 </plugin>

@@ -23,12 +23,27 @@
         </or>
       </and>
     </condition>
+    <local name="_normalize-strip-branch-filter"/>
+    <condition property="_normalize-strip-branch-filter" value="true" else="false">
+      <and>
+        <not>
+          <isset property="branch-filter.skip"/>
+        </not>
+        <or>
+          <istrue value="${normalize-strip-branch-filter}"/>
+          <not>
+            <isset property="normalize-strip-branch-filter"/>
+          </not>
+        </or>
+      </and>
+    </condition>
     <!--pipeline message="Normalize DITA files" taskname="normalize"-->
       <xslt in="${dita.temp.dir}/.job.xml" out="${dita.temp.dir}/.job.xml.temp"
             style="${dita.plugin.org.dita.normalize.dir}/xsl/normalize.xsl"
             taskname="normalize">
         <param name="output.dir.uri" expression="${output.dir.uri}"/>
         <param name="normalize-strip-keyref" expression="${_normalize-strip-keyref}"/>
+        <param name="normalize-strip-branch-filter" expression="${_normalize-strip-branch-filter}"/>
         <xmlcatalog refid="dita.catalog"/>
       </xslt>
     <!--/pipeline-->

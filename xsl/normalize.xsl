@@ -15,6 +15,7 @@
 
   <xsl:param name="output.dir.uri" as="xs:string"/>
   <xsl:param name="normalize-strip-keyref" as="xs:string"/>
+  <xsl:param name="normalize-strip-branch-filter" as="xs:string"/>
 
   <xsl:function name="dita-ot:get-fragment" as="xs:string">
     <xsl:param name="input" as="xs:string"/>
@@ -164,6 +165,9 @@
 
   <xsl:template match="@keyref[$normalize-strip-keyref = 'true'] |
                        @keys[$normalize-strip-keyref = 'true']"/>
+
+  <xsl:template match="*[contains(@class, ' ditavalref-d/ditavalref ')]
+                        [$normalize-strip-branch-filter = 'true']"/>
 
   <xsl:template match="*[contains(@class, ' topic/xref ') or
                          contains(@class, ' topic/xref ') or
