@@ -143,6 +143,7 @@
                        processing-instruction('workdir-uri') |
                        processing-instruction('path2project') |
                        processing-instruction('path2project-uri') |
+                       processing-instruction('path2rootmap-uri') |
                        processing-instruction('ditaot') |
                        processing-instruction('doctype-public') |
                        processing-instruction('doctype-system') |
