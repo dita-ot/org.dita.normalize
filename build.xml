@@ -13,7 +13,7 @@
     <condition property="_normalize-strip-keyref" value="true" else="false">
       <and>
         <not>
-          <isset property="keyref.skip"/>
+          <isset property="preprocess.keyref.skip"/>
         </not>
         <or>
           <istrue value="${normalize-strip-keyref}"/>
@@ -27,7 +27,7 @@
     <condition property="_normalize-strip-branch-filter" value="true" else="false">
       <and>
         <not>
-          <isset property="branch-filter.skip"/>
+          <isset property="preprocess.branch-filter.skip"/>
         </not>
         <or>
           <istrue value="${normalize-strip-branch-filter}"/>
