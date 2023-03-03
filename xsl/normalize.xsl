@@ -171,7 +171,8 @@
                         [$normalize-strip-branch-filter = 'true']"/>
 
   <xsl:template match="*[contains(@class, ' topic/xref ') or
-                         contains(@class, ' topic/xref ') or
+                         contains(@class, ' topic/link ') or
+                         (contains(@class, ' topic/keyword') and exists(@href)) or
                          contains(@class, ' map/topicref ')]
                         [empty(@format) or @format = 'dita']
                         [empty(@scope) or @scope = 'local']/@href">
@@ -193,6 +194,21 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:template match="*[contains(@class, ' topic/keyword ') and exists(@href)]">
+    <xref>
+      <xsl:apply-templates select="@*"/>
+      <xsl:attribute name="class">- topic/xref </xsl:attribute>
+      <xsl:apply-templates select="node()"/>
+    </xref>
+  </xsl:template>
+
+  <xsl:template match="*[contains(@class, ' topic/pre ')]/@xml:space[. = 'preserve'] |
+                       @scope[. = 'local'] |
+                       @format[. = 'dita'] |
+                       *[contains(@class, ' topic/xref ')]/@locktitle"/>
+
+  <xsl:template match="*[contains(@class, ' subjectScheme/')]" priority="5"/>
 
   <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
     <xsl:if test="empty(../@namest) and empty(../@nameend)">
