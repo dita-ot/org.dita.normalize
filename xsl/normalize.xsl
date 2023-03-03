@@ -15,35 +15,20 @@
 
   <xsl:param name="output.dir.uri"/>
 
-<!--  <xsl:function name="dita-ot:get-output-file" as="xs:string">-->
-<!--    <xsl:param name="input" as="xs:string"/>-->
-<!--    <xsl:param name="format" as="xs:string"/>-->
-<!--    <xsl:variable name="path" select="replace($input, '#.*$', '')" as="xs:string"/>-->
-<!--    <xsl:variable name="fragment" select="replace($input, '^[^#]+', '')" as="xs:string"/>-->
-<!--    <xsl:choose>-->
-<!--      <xsl:when test="matches($path, '\.(xml|dita|ditamap)$', 'i')">-->
-<!--        <xsl:value-of select="$input"/>-->
-<!--      </xsl:when>-->
-<!--      <xsl:otherwise>-->
-<!--        <xsl:value-of select="concat(replace($path, '\.(\w+)$', concat('.', $format)), $fragment)"/>-->
-<!--      </xsl:otherwise>-->
-<!--    </xsl:choose>-->
-<!--  </xsl:function>-->
-
   <xsl:function name="dita-ot:get-fragment" as="xs:string">
     <xsl:param name="input" as="xs:string"/>
-    <xsl:value-of select="replace($input, '^[^#]+', '')"/>
+    <xsl:sequence select="replace($input, '^[^#]+', '')"/>
   </xsl:function>
 
   <xsl:function name="dita-ot:strip-fragment" as="xs:anyURI">
     <xsl:param name="input" as="xs:string"/>
-    <xsl:value-of select="replace($input, '#.*$', '')"/>
+    <xsl:sequence select="xs:anyURI(replace($input, '#.*$', ''))"/>
   </xsl:function>
 
   <xsl:function name="dita-ot:set-fragment" as="xs:anyURI">
     <xsl:param name="path" as="xs:string"/>
     <xsl:param name="fragment" as="xs:string"/>
-    <xsl:value-of select="concat($path, $fragment)"/>
+    <xsl:sequence select="xs:anyURI(concat($path, $fragment))"/>
   </xsl:function>
 
   <xsl:variable name="files" as="document-node()">
@@ -172,7 +157,9 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="*[contains(@class, ' topic/xref ') or contains(@class, ' topic/xref ')]
+  <xsl:template match="*[contains(@class, ' topic/xref ') or
+                         contains(@class, ' topic/xref ') or
+                         contains(@class, ' map/topicref ')]
                         [empty(@format) or @format = 'dita']
                         [empty(@scope) or @scope = 'local']/@href">
     <xsl:param name="uri" as="xs:anyURI" tunnel="yes"/>
