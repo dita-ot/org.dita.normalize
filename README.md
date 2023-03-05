@@ -22,13 +22,19 @@ Normalized output may be useful in situations where post-processing of DITA cont
 
 Run the plug-in installation command:
 
-    dita -install https://github.com/dita-ot/org.dita.normalize/archive/1.0.zip
+```shell
+dita install org.dita.normalize
+```
+
+See [plug-in registry](https://www.dita-ot.org/plugins#!org.dita.normalize) for more information.
 
 ## Generating normalized DITA output
 
 Run the **`dita`** command and set the value of the output `-format` option to `dita`:
 
-    dita-ot-dir/bin/dita -input input-file -format dita
+```
+dita-ot-dir/bin/dita -input input-file -format dita
+```
 
 where:
 
