@@ -13,7 +13,9 @@
 
   <xsl:import href="plugin:org.dita.base:xsl/common/uri-utils.xsl"/>
 
-  <xsl:param name="output.dir.uri"/>
+  <xsl:param name="output.dir.uri" as="xs:string"/>
+  <xsl:param name="normalize-strip-keyref" as="xs:string"/>
+  <xsl:param name="normalize-strip-branch-filter" as="xs:string"/>
 
   <xsl:function name="dita-ot:get-fragment" as="xs:string">
     <xsl:param name="input" as="xs:string"/>
@@ -134,13 +136,16 @@
     </xsl:choose>
   </xsl:function>
 
+  <!-- Remove default attributes from schema -->
   <xsl:template match="@class | @domains | @specializations | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
                 priority="10"/>
 
+  <!-- Remove processing time PIs -->
   <xsl:template match="processing-instruction('workdir') |
                        processing-instruction('workdir-uri') |
                        processing-instruction('path2project') |
                        processing-instruction('path2project-uri') |
+                       processing-instruction('path2rootmap-uri') |
                        processing-instruction('ditaot') |
                        processing-instruction('doctype-public') |
                        processing-instruction('doctype-system') |
@@ -148,8 +153,10 @@
                        @mapclass"
                 priority="10"/>
 
+  <!-- Remove cascade inserted by preprocess -->
   <xsl:template match="*[number(@ditaarch:DITAArchVersion) &lt; 1.3]/@cascade"/>
 
+  <!-- Rename elements to match class type -->
   <xsl:template match="*[@class]" priority="-5">
     <xsl:element name="{tokenize(tokenize(normalize-space(@class), '\s+')[last()], '/')[last()]}"
       namespace="{namespace-uri()}">
@@ -157,8 +164,23 @@
     </xsl:element>
   </xsl:template>
 
+  <!-- Remove resolved keydefs -->
+  <xsl:template match="*[contains(@class, ' map/topicref ')]
+                        [exists(@keys) and @processing-role = 'resource-only']
+                        [$normalize-strip-keyref = 'true']"/>
+
+  <!-- Remove resolved key definition and references -->
+  <xsl:template match="@keyref[$normalize-strip-keyref = 'true'] |
+                       @keys[$normalize-strip-keyref = 'true']"/>
+
+  <!-- Remove resolved ditavalrefs -->
+  <xsl:template match="*[contains(@class, ' ditavalref-d/ditavalref ')]
+                        [$normalize-strip-branch-filter = 'true']"/>
+
+  <!-- Rewrite link target -->
   <xsl:template match="*[contains(@class, ' topic/xref ') or
-                         contains(@class, ' topic/xref ') or
+                         contains(@class, ' topic/link ') or
+                         (contains(@class, ' topic/keyword') and exists(@href)) or
                          contains(@class, ' map/topicref ')]
                         [empty(@format) or @format = 'dita']
                         [empty(@scope) or @scope = 'local']/@href">
@@ -181,6 +203,24 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- Rename keyword that has been converted into a link using keys -->
+  <xsl:template match="*[contains(@class, ' topic/keyword ') and exists(@href)]">
+    <xref>
+      <xsl:apply-templates select="@*"/>
+      <xsl:attribute name="class">- topic/xref </xsl:attribute>
+      <xsl:apply-templates select="node()"/>
+    </xref>
+  </xsl:template>
+
+  <!-- Remove default attributes -->
+  <xsl:template match="*[contains(@class, ' topic/pre ')]/@xml:space[. = 'preserve'] |
+                       @scope[. = 'local'] |
+                       @format[. = 'dita'] |
+                       *[contains(@class, ' topic/xref ')]/@locktitle"/>
+
+  <xsl:template match="*[contains(@class, ' subjectScheme/')]" priority="5"/>
+
+  <!-- Remove colname inserted by preprocess -->
   <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
     <xsl:if test="empty(../@namest) and empty(../@nameend)">
       <xsl:copy-of select="."/>
