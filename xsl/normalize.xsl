@@ -136,9 +136,11 @@
     </xsl:choose>
   </xsl:function>
 
+  <!-- Remove default attributes from schema -->
   <xsl:template match="@class | @domains | @specializations | @xtrf | @xtrc | @ditaarch:DITAArchVersion"
                 priority="10"/>
 
+  <!-- Remove processing time PIs -->
   <xsl:template match="processing-instruction('workdir') |
                        processing-instruction('workdir-uri') |
                        processing-instruction('path2project') |
@@ -151,8 +153,10 @@
                        @mapclass"
                 priority="10"/>
 
+  <!-- Remove cascade inserted by preprocess -->
   <xsl:template match="*[number(@ditaarch:DITAArchVersion) &lt; 1.3]/@cascade"/>
 
+  <!-- Rename elements to match class type -->
   <xsl:template match="*[@class]" priority="-5">
     <xsl:element name="{tokenize(tokenize(normalize-space(@class), '\s+')[last()], '/')[last()]}"
       namespace="{namespace-uri()}">
@@ -160,16 +164,20 @@
     </xsl:element>
   </xsl:template>
 
+  <!-- Remove resolved keydefs -->
   <xsl:template match="*[contains(@class, ' map/topicref ')]
                         [exists(@keys) and @processing-role = 'resource-only']
                         [$normalize-strip-keyref = 'true']"/>
 
+  <!-- Remove resolved key definition and references -->
   <xsl:template match="@keyref[$normalize-strip-keyref = 'true'] |
                        @keys[$normalize-strip-keyref = 'true']"/>
 
+  <!-- Remove resolved ditavalrefs -->
   <xsl:template match="*[contains(@class, ' ditavalref-d/ditavalref ')]
                         [$normalize-strip-branch-filter = 'true']"/>
 
+  <!-- Rewrite link target -->
   <xsl:template match="*[contains(@class, ' topic/xref ') or
                          contains(@class, ' topic/link ') or
                          (contains(@class, ' topic/keyword') and exists(@href)) or
@@ -195,6 +203,7 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- Rename keyword that has been converted into a link using keys -->
   <xsl:template match="*[contains(@class, ' topic/keyword ') and exists(@href)]">
     <xref>
       <xsl:apply-templates select="@*"/>
@@ -203,6 +212,7 @@
     </xref>
   </xsl:template>
 
+  <!-- Remove default attributes -->
   <xsl:template match="*[contains(@class, ' topic/pre ')]/@xml:space[. = 'preserve'] |
                        @scope[. = 'local'] |
                        @format[. = 'dita'] |
@@ -210,6 +220,7 @@
 
   <xsl:template match="*[contains(@class, ' subjectScheme/')]" priority="5"/>
 
+  <!-- Remove colname inserted by preprocess -->
   <xsl:template match="*[contains(@class, ' topic/entry ')]/@colname">
     <xsl:if test="empty(../@namest) and empty(../@nameend)">
       <xsl:copy-of select="."/>
