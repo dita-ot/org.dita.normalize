@@ -233,6 +233,9 @@ See the accompanying LICENSE file for applicable license.
       <xsl:copy-of select="."/>
     </xsl:if>
   </xsl:template>
+
+  <!-- Remove reltable bacause links have already been pushed to topics -->
+  <xsl:template match="*[contains(@class, ' map/reltable ')]"/>
   
   <xsl:template match="*" priority="-10">
     <xsl:element name="{name()}" namespace="{namespace-uri()}">
