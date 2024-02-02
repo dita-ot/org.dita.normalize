@@ -10,7 +10,7 @@ See the accompanying LICENSE file for applicable license.
 
   <target name="dita2dita"
           depends="build-init,
-                   preprocess">
+                   preprocess2">
     <makeurl property="output.dir.uri" file="${output.dir}"/>
     <local name="_normalize-strip-keyref"/>
     <condition property="_normalize-strip-keyref" value="true" else="false">

@@ -38,7 +38,8 @@ See the accompanying LICENSE file for applicable license.
 
   <xsl:variable name="files" as="document-node()">
     <xsl:variable name="rewritten" as="element()*">
-      <xsl:for-each select="job/files/file[@format = ('dita', 'ditamap')]">
+      <xsl:for-each select="job/files/file[(@format = 'dita')
+        or (@format = 'ditamap' and (@input, @inputResource) = 'true')]">
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="uri" select="resolve-uri(@uri, base-uri($root))"/>
