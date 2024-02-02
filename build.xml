@@ -40,7 +40,7 @@ See the accompanying LICENSE file for applicable license.
         </or>
       </and>
     </condition>
-    <!--pipeline message="Normalize DITA files" taskname="normalize"-->
+    <pipeline message="Normalize DITA files" taskname="normalize">
       <xslt in="${dita.temp.dir}/.job.xml" out="${dita.temp.dir}/.job.xml.temp"
             style="${dita.plugin.org.dita.normalize.dir}/xsl/normalize.xsl"
             taskname="normalize">
@@ -49,7 +49,7 @@ See the accompanying LICENSE file for applicable license.
         <param name="normalize-strip-branch-filter" expression="${_normalize-strip-branch-filter}"/>
         <xmlcatalog refid="dita.catalog"/>
       </xslt>
-    <!--/pipeline-->
+    </pipeline>
     <delete file="${dita.temp.dir}/.job.xml.temp"/>
   </target>
   
