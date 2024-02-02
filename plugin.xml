@@ -6,7 +6,7 @@ Copyright 2015 Jarno Elovirta
 
 See the accompanying LICENSE file for applicable license.
 -->
-<plugin id="org.dita.normalize" version="1.1.0">
+<plugin id="org.dita.normalize" version="2.0.0">
   <transtype name="dita" desc="Normalized DITA">
     <param name="normalize-strip-keyref" desc="Remove key artefacts after key resolution." type="enum">
       <val default="true">yes</val>
